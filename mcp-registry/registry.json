@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "description": "Registry of all MCP connections available to Josh's AI system.",
+  "servers": [
+    {
+      "id": "joshs-brain",
+      "name": "Josh's Brain",
+      "status": "active-when-running",
+      "type": "http",
+      "url": "http://localhost:3336/mcp",
+      "start": "C:\\Users\\joshu\\Brain of Ai\\START-ALL.bat",
+      "tools": ["get_context","get_priorities","get_wins","get_notes","get_focus","set_goal","add_priority","complete_priority","add_note","log_win","set_focus","set_weekly_theme","set_context","brain_status"]
+    },
+    {
+      "id": "openai-bridge",
+      "name": "OpenAI Bridge",
+      "status": "needs-api-key",
+      "type": "http",
+      "url": "http://localhost:3337/mcp",
+      "env_required": ["OPENAI_API_KEY"],
+      "tools": ["gpt4_chat","codex_code","o1_think","multi_agent_task"]
+    },
+    {
+      "id": "rally-point-codex",
+      "name": "Rally Point Codex Bridge",
+      "status": "needs-bridge-token",
+      "type": "http",
+      "url": "http://localhost:3333/mcp",
+      "token_file": "C:\\Users\\joshu\\OneDrive\\Rally Point Automations\\.bridge-token",
+      "tools": ["brain_manifest","codex_status","run_codex_task","list_rally_point_agents","run_rally_point_agent"]
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "status": "active",
+      "type": "cloud-oauth"
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "status": "active",
+      "type": "cloud-oauth"
+    },
+    {
+      "id": "google-drive",
+      "name": "Google Drive",
+      "status": "active",
+      "type": "cloud-oauth"
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "status": "active",
+      "type": "cloud-oauth"
+    }
+  ]
+}

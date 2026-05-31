@@ -1,0 +1,27 @@
+# Personal data - never commit these
+brain-server/data.json
+brain-server/activity.json
+brain-server/data.*.json
+
+# API keys and secrets
+.env
+*.env
+.env.local
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/settings.json
+
+# Logs
+*.log

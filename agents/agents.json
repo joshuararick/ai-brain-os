@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "description": "Josh's AI agent registry. Add agents here to make them available to the Brain MCP.",
+  "agents": [
+    {
+      "id": "claude",
+      "name": "Claude",
+      "type": "orchestrator",
+      "description": "Primary AI — plans, reasons, coordinates all other agents",
+      "status": "active",
+      "capabilities": ["reasoning", "writing", "code", "file-access", "web", "computer-use"]
+    },
+    {
+      "id": "gpt4o",
+      "name": "GPT-4o",
+      "type": "worker",
+      "description": "General purpose AI worker — second opinions, parallel tasks, creative work",
+      "status": "pending-api-key",
+      "endpoint": "openai-bridge",
+      "tool": "gpt4_chat"
+    },
+    {
+      "id": "codex",
+      "name": "OpenAI Codex",
+      "type": "worker",
+      "description": "Code generation and debugging specialist",
+      "status": "pending-api-key",
+      "endpoint": "openai-bridge",
+      "tool": "codex_code"
+    },
+    {
+      "id": "o1",
+      "name": "o1 Reasoner",
+      "type": "worker",
+      "description": "Deep reasoning for complex problems, math, logic",
+      "status": "pending-api-key",
+      "endpoint": "openai-bridge",
+      "tool": "o1_think"
+    },
+    {
+      "id": "rally-point",
+      "name": "Rally Point Codex",
+      "type": "worker",
+      "description": "Local workspace agent — runs Codex tasks and Rally Point agents",
+      "status": "pending-bridge-token",
+      "endpoint": "http://localhost:3333/mcp",
+      "tools": ["run_codex_task", "run_rally_point_agent", "list_rally_point_agents"]
+    }
+  ]
+}
