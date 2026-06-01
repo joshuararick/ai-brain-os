@@ -12,4 +12,8 @@ WScript.Sleep 1000
 ' Start OpenAI Bridge (port 3337)
 sh.Run "node ""C:\Users\joshu\Brain of Ai\brain-server\openai-bridge.js""", 0, False
 
+' Wait 2 seconds then regenerate all landing pages
+WScript.Sleep 2000
+sh.Run "node ""C:\Users\joshu\Brain of Ai\generate-pages.js""", 0, False
+
 Set sh = Nothing
