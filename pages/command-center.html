@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Army — Command Center</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f8f9fa;
+      color: #1a1a2e;
+      font-size: 14px;
+    }
+
+    header {
+      background: #0d0d1a;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #a855f7;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -.3px; }
+    header h1 span { color: #a855f7; }
+    .header-meta { font-size: .8rem; color: #64748b; }
+    .pulse { display: inline-block; width: 8px; height: 8px; background: #a8ff78; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)} }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+    .card-full { grid-column: 1 / -1; }
+
+    .card-header {
+      padding: .75rem 1rem;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title { font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; color: #475569; }
+    .badge {
+      font-size: .7rem;
+      padding: .15rem .5rem;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-amber  { background: #fef3c7; color: #92400e; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; }
+    .badge-gray   { background: #f1f5f9; color: #64748b; }
+
+    .card-body { padding: 1rem; }
+
+    /* Projects */
+    .project-row {
+      display: flex;
+      align-items: center;
+      padding: .6rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      gap: .75rem;
+    }
+    .project-row:last-child { border-bottom: none; }
+    .project-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .project-info { flex: 1; }
+    .project-name { font-weight: 600; font-size: .9rem; color: #1a1a2e; }
+    .project-sub  { font-size: .75rem; color: #94a3b8; margin-top: 1px; }
+    .project-meta { text-align: right; }
+    .project-ver  { font-size: .75rem; color: #64748b; }
+
+    /* Agents */
+    .agent-row {
+      display: flex;
+      align-items: center;
+      padding: .6rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      gap: .75rem;
+    }
+    .agent-row:last-child { border-bottom: none; }
+    .agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-active  { background: #22c55e; }
+    .dot-pending { background: #f59e0b; }
+    .dot-offline { background: #e2e8f0; }
+    .agent-name { font-weight: 600; font-size: .85rem; color: #1e293b; flex: 1; }
+    .agent-role { font-size: .75rem; color: #94a3b8; }
+
+    /* Activity log */
+    .log-container {
+      font-family: 'Courier New', monospace;
+      background: #0d0d1a;
+      border-radius: 0 0 10px 10px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .log-row {
+      display: grid;
+      grid-template-columns: 140px 80px 1fr 50px;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      border-bottom: 1px solid #1a1a2e;
+      align-items: baseline;
+      font-size: .78rem;
+    }
+    .log-row:last-child { border-bottom: none; }
+    .log-ts     { color: #4a5568; }
+    .log-agent  { color: #a78bfa; font-weight: bold; }
+    .log-msg    { color: #cbd5e1; }
+    .log-msg .project { color: #67e8f9; }
+    .log-msg .action  { color: #86efac; }
+    .log-msg .err     { color: #f87171; }
+    .log-ver    { color: #4a5568; text-align: right; }
+    .log-empty  { padding: 2rem; text-align: center; color: #4a5568; font-family: monospace; font-size: .85rem; }
+
+    /* Brain */
+    .brain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .brain-item { padding: .5rem .75rem; background: #f8fafc; border-radius: 6px; border-left: 3px solid #a855f7; }
+    .brain-label { font-size: .7rem; text-transform: uppercase; color: #94a3b8; letter-spacing: .5px; }
+    .brain-value { font-size: .85rem; font-weight: 600; color: #1e293b; margin-top: 2px; }
+
+    /* Runs */
+    .run-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid #f1f5f9; }
+    .run-row:last-child { border-bottom: none; }
+    .run-label { font-size: .85rem; color: #475569; }
+    .run-cmd   { font-family: monospace; font-size: .75rem; background: #f1f5f9; padding: .2rem .5rem; border-radius: 4px; color: #7c3aed; }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      padding: .25rem .6rem;
+      border-radius: 5px;
+      font-size: .75rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .refresh-btn:hover { background: #f1f5f9; color: #1e293b; }
+
+    .stat-row { display: flex; gap: 1rem; margin-bottom: .75rem; }
+    .stat { flex: 1; background: #f8fafc; border-radius: 8px; padding: .75rem; text-align: center; border: 1px solid #e2e8f0; }
+    .stat-num  { font-size: 1.6rem; font-weight: 800; color: #7c3aed; }
+    .stat-label { font-size: .7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+    footer { text-align: center; padding: 1rem; color: #94a3b8; font-size: .75rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⚙ AI Army <span>Command Center</span></h1>
+  <div class="header-meta">
+    <span class="pulse"></span>
+    <span id="last-refresh">Loading...</span>
+  </div>
+</header>
+
+<div class="grid" id="grid">
+  <div class="card card-full" style="padding:2rem;text-align:center;color:#94a3b8">
+    Loading command center...
+  </div>
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+
+const PROJECTS = [
+  { id: 'phoenix-fence',   name: 'Phoenix Fence',        icon: '🔴', color: '#fee2e2', type: 'business',  contentPath: 'phoenix-fence/content.json' },
+  { id: 'blue-ridge-fence',name: 'Blue Ridge Fence',     icon: '🔵', color: '#dbeafe', type: 'business',  contentPath: 'blue-ridge-fence/content.json' },
+  { id: 'personal',        name: 'Josh Rarick — Creator', icon: '🟣', color: '#f3e8ff', type: 'personal',  contentPath: 'personal/content.json' }
+];
+
+const AGENTS = [
+  { id: 'claude',    name: 'Claude',        role: 'Orchestrator · Reasoning · Code · Files',  status: 'active'  },
+  { id: 'gpt4o',    name: 'GPT-4o',         role: 'General worker · Creative · Parallel tasks', status: 'pending' },
+  { id: 'codex',    name: 'OpenAI Codex',   role: 'Code generation & debugging',              status: 'pending' },
+  { id: 'o1',       name: 'o1 Reasoner',    role: 'Deep reasoning · Math · Logic',            status: 'pending' },
+  { id: 'grok',     name: 'Grok',           role: 'Real-time web · X/Twitter data',           status: 'pending' },
+  { id: 'gemini',   name: 'Gemini',         role: 'Multimodal · Document understanding',      status: 'pending' },
+  { id: 'perplexity',name:'Perplexity',     role: 'Web search · Research',                    status: 'pending' },
+  { id: 'fallback', name: 'Fallback Engine',role: 'Template content (no API key needed)',     status: 'active'  }
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function statusBadge(status) {
+  if (status === 'active')   return '<span class="badge badge-green">Active</span>';
+  if (status === 'pending')  return '<span class="badge badge-amber">Needs API Key</span>';
+  return '<span class="badge badge-gray">Offline</span>';
+}
+
+function agentDot(status) {
+  if (status === 'active')  return 'dot-active';
+  if (status === 'pending') return 'dot-pending';
+  return 'dot-offline';
+}
+
+// ── Fetch content for all projects ───────────────────────────────────────
+
+async function fetchProjectContents() {
+  return Promise.all(PROJECTS.map(async p => {
+    try {
+      const r = await fetch(p.contentPath + '?t=' + Date.now());
+      if (!r.ok) return { ...p, content: null };
+      const c = await r.json();
+      return { ...p, content: c };
+    } catch(e) {
+      return { ...p, content: null };
+    }
+  }));
+}
+
+async function fetchActivity() {
+  try {
+    const r = await fetch('../activity.json?t=' + Date.now());
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d.log || [];
+  } catch(e) { return []; }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+
+function renderCommandCenter(projects, log) {
+  const totalVersions  = projects.reduce((s,p) => s + (p.content?.meta?.version || 0), 0);
+  const activeAgents   = AGENTS.filter(a => a.status === 'active').length;
+  const pendingAgents  = AGENTS.filter(a => a.status === 'pending').length;
+  const lastEntry      = log[0];
+
+  document.getElementById('grid').innerHTML = `
+
+    <!-- Stats row -->
+    <div class="card card-full">
+      <div class="card-body" style="padding:.75rem 1rem">
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-num">${PROJECTS.length}</div>
+            <div class="stat-label">Projects</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">${totalVersions}</div>
+            <div class="stat-label">Total Versions</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">${activeAgents}</div>
+            <div class="stat-label">Active Agents</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">${log.length}</div>
+            <div class="stat-label">Log Entries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Projects</span>
+        <span class="badge badge-blue">${PROJECTS.length} active</span>
+      </div>
+      <div class="card-body">
+        ${projects.map(p => `
+          <div class="project-row">
+            <div class="project-icon" style="background:${p.color}">${p.icon}</div>
+            <div class="project-info">
+              <div class="project-name">${esc(p.name)}</div>
+              <div class="project-sub">${p.content
+                ? esc(p.content.hero?.subheadline?.slice(0,50) + '…')
+                : '<span style="color:#f59e0b">⚠ No content yet</span>'}</div>
+            </div>
+            <div class="project-meta">
+              ${p.content
+                ? `<div class="project-ver">v${p.content.meta?.version || 1}</div>
+                   <div style="font-size:.7rem;color:#94a3b8;margin-top:2px">${esc(p.content.meta?.generated_by || '')}</div>`
+                : '<span class="badge badge-amber">Unbuilt</span>'}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Agent Army -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Agent Army</span>
+        <span class="badge badge-purple">${activeAgents} live · ${pendingAgents} pending</span>
+      </div>
+      <div class="card-body">
+        ${AGENTS.map(a => `
+          <div class="agent-row">
+            <div class="agent-dot ${agentDot(a.status)}"></div>
+            <div style="flex:1">
+              <div class="agent-name">${esc(a.name)}</div>
+              <div class="agent-role">${esc(a.role)}</div>
+            </div>
+            ${statusBadge(a.status)}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Brain Context -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Brain Context</span>
+        <span class="badge badge-purple">Josh</span>
+      </div>
+      <div class="card-body">
+        <div class="brain-grid">
+          <div class="brain-item"><div class="brain-label">Identity</div><div class="brain-value">Father · Husband · Creator</div></div>
+          <div class="brain-item"><div class="brain-label">Weekly Theme</div><div class="brain-value">Getting Systems in Place</div></div>
+          <div class="brain-item"><div class="brain-label">Creator Goal</div><div class="brain-value">Sustainable creative biz</div></div>
+          <div class="brain-item"><div class="brain-label">Finance Goal</div><div class="brain-value">6-month emergency fund</div></div>
+          <div class="brain-item" style="grid-column:1/-1"><div class="brain-label">Latest Win</div><div class="brain-value">Built full AI Brain OS in one session 🔥</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Run the Agents</span>
+        <span class="badge badge-gray">Commands</span>
+      </div>
+      <div class="card-body">
+        <div class="run-row">
+          <span class="run-label">All projects</span>
+          <span class="run-cmd">node generate-pages.js</span>
+        </div>
+        <div class="run-row">
+          <span class="run-label">Phoenix Fence only</span>
+          <span class="run-cmd">node generate-pages.js phoenix-fence</span>
+        </div>
+        <div class="run-row">
+          <span class="run-label">Blue Ridge only</span>
+          <span class="run-cmd">node generate-pages.js blue-ridge-fence</span>
+        </div>
+        <div class="run-row">
+          <span class="run-label">Preview (no writes)</span>
+          <span class="run-cmd">node generate-pages.js --dry-run</span>
+        </div>
+        <div class="run-row">
+          <span class="run-label">Auto every morning</span>
+          <span style="font-size:.8rem;color:#7c3aed">Add to Windows Task Scheduler</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card card-full">
+      <div class="card-header">
+        <span class="card-title">⚙ AI Activity Log</span>
+        <button class="refresh-btn" onclick="refresh()">↻ Refresh</button>
+      </div>
+      <div class="log-container">
+        ${log.length === 0
+          ? '<div class="log-empty">No activity yet — run <code>node generate-pages.js</code> to start the agents</div>'
+          : log.slice(0, 50).map(e => `
+            <div class="log-row">
+              <span class="log-ts">${esc(e.ts_human || e.timestamp?.slice(0,19) || '')}</span>
+              <span class="log-agent">${esc(e.agent)}</span>
+              <span class="log-msg">
+                <span class="action">${esc(e.action)}</span> on
+                <span class="project">${esc(e.project_name)}</span>
+                ${e.headline ? `— "${esc(e.headline.slice(0,40))}"` : ''}
+                ${e.error ? `<span class="err">✗ ${esc(e.error)}</span>` : ''}
+              </span>
+              <span class="log-ver">${e.version ? 'v'+e.version : ''}</span>
+            </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── Boot + Refresh ────────────────────────────────────────────────────────
+
+async function refresh() {
+  document.getElementById('last-refresh').textContent = 'Refreshing...';
+  const [projects, log] = await Promise.all([fetchProjectContents(), fetchActivity()]);
+  renderCommandCenter(projects, log);
+  document.getElementById('last-refresh').textContent =
+    '⟳ Updated ' + new Date().toLocaleTimeString();
+  document.getElementById('footer').textContent =
+    'AI Army Command Center · ' + PROJECTS.length + ' projects · ' + AGENTS.length + ' agents configured · ' + log.length + ' log entries';
+}
+
+refresh();
+</script>
+</body>
+</html>

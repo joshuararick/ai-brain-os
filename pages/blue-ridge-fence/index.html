@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Ridge Fence</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:   #2980b9;
+      --dark:    #1a1a1a;
+      --mid:     #2c2c2c;
+      --light:   #f5f5f5;
+      --accent:  #3498db;
+      --text:    #333;
+      --muted:   #777;
+      --log-bg:  #0f1117;
+      --log-text:#a8ff78;
+      --log-dim: #4a5568;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); background: #fff; }
+
+    /* NAV */
+    nav { background: var(--dark); color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -.5px; }
+    nav .logo span { color: var(--accent); }
+    nav a { color: #ddd; text-decoration: none; margin-left: 1.5rem; font-size: .95rem; }
+    nav a:hover { color: #fff; }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, var(--dark) 60%, var(--brand)); color: #fff; padding: 5rem 2rem; text-align: center; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 1.2rem; }
+    .hero p  { font-size: 1.2rem; color: #ccc; max-width: 600px; margin: 0 auto 2rem; }
+    .btn { display: inline-block; background: var(--accent); color: #fff; padding: .9rem 2.2rem; border-radius: 6px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: background .2s; }
+    .btn:hover { background: var(--brand); }
+
+    /* SECTIONS */
+    section { padding: 4rem 2rem; max-width: 1000px; margin: 0 auto; }
+    section h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark); }
+    section p  { color: #555; line-height: 1.7; font-size: 1.05rem; }
+
+    /* SERVICES GRID */
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .service-card { background: var(--light); border-radius: 10px; padding: 1.5rem; border-left: 4px solid var(--accent); }
+    .service-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; color: var(--dark); }
+    .service-card p  { font-size: .9rem; color: var(--muted); }
+
+    /* TESTIMONIAL */
+    .testimonial-section { background: var(--light); padding: 4rem 2rem; text-align: center; }
+    .testimonial-section blockquote { font-size: 1.3rem; font-style: italic; color: var(--dark); max-width: 700px; margin: 0 auto; line-height: 1.6; }
+    .testimonial-section cite { display: block; margin-top: 1rem; color: var(--muted); font-size: .95rem; font-style: normal; }
+
+    /* CTA */
+    .cta-section { background: var(--brand); color: #fff; padding: 4rem 2rem; text-align: center; }
+    .cta-section h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .cta-section p  { color: #fdd; font-size: 1.1rem; margin-bottom: 2rem; }
+    .cta-section .btn { background: #fff; color: var(--brand); }
+    .cta-section .btn:hover { background: #f5f5f5; }
+
+    /* ACTIVITY LOG */
+    .activity-log { background: var(--log-bg); color: var(--log-text); font-family: 'Courier New', monospace; padding: 2rem; }
+    .activity-log .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--log-dim); padding-bottom: 1rem; }
+    .activity-log .log-title { font-size: 1rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: var(--log-text); }
+    .activity-log .log-badge { background: #0a1a2a; border: 1px solid var(--log-text); padding: .2rem .7rem; border-radius: 20px; font-size: .75rem; color: var(--log-text); }
+    .log-entry { border-bottom: 1px solid #1e2535; padding: .8rem 0; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: start; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-ts    { color: var(--log-dim); font-size: .8rem; white-space: nowrap; }
+    .log-msg   { font-size: .9rem; color: #e2e8f0; }
+    .log-msg .agent { color: var(--log-text); font-weight: bold; }
+    .log-msg .action { color: #63b3ed; }
+    .log-ver   { color: var(--log-dim); font-size: .8rem; white-space: nowrap; }
+    .log-empty { color: var(--log-dim); font-style: italic; text-align: center; padding: 2rem; }
+
+    /* AI BADGE */
+    .ai-badge { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--log-bg); color: var(--log-text); font-family: monospace; font-size: .75rem; padding: .5rem 1rem; border-radius: 20px; border: 1px solid var(--log-dim); opacity: .85; }
+    .ai-badge span { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+    /* LOADING */
+    .loading { text-align: center; color: var(--muted); padding: 3rem; font-size: 1rem; }
+
+    footer { background: var(--dark); color: #999; text-align: center; padding: 1.5rem; font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Phoenix <span>Fence</span></div>
+  <div>
+    <a href="#services">Services</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="#activity-log">AI Log</a>
+  </div>
+</nav>
+
+<!-- Content loaded dynamically from content.json -->
+<div id="app">
+  <div class="loading">Loading content...</div>
+</div>
+
+<div class="ai-badge"><span>●</span> AI-Maintained</div>
+
+<script>
+const PROJECT_ID = 'blue-ridge-fence';
+
+// Render the full page from content JSON
+function render(c) {
+  document.title = c.hero?.headline || 'Blue Ridge Fence';
+  document.getElementById('app').innerHTML = `
+    <div class="hero">
+      <h1>${esc(c.hero?.headline || '')}</h1>
+      <p>${esc(c.hero?.subheadline || '')}</p>
+      <a class="btn" href="#contact">${esc(c.hero?.cta || 'Get a Quote')}</a>
+    </div>
+
+    <section id="about">
+      <h2>${esc(c.about?.heading || '')}</h2>
+      <p>${esc(c.about?.body || '')}</p>
+    </section>
+
+    <section id="services">
+      <h2>Our Services</h2>
+      <div class="services-grid">
+        ${(c.services || []).map(s => `
+          <div class="service-card">
+            <h3>${esc(s.name)}</h3>
+            <p>${esc(s.description)}</p>
+          </div>`).join('')}
+      </div>
+    </section>
+
+    <div class="testimonial-section">
+      <blockquote>${esc(c.testimonial?.quote || '')}</blockquote>
+      <cite>— ${esc(c.testimonial?.author || '')}</cite>
+    </div>
+
+    <div class="cta-section" id="contact">
+      <h2>${esc(c.cta_section?.heading || '')}</h2>
+      <p>${esc(c.cta_section?.body || '')}</p>
+      <a class="btn" href="tel:+1">${esc(c.cta_section?.button || 'Call Us')}</a>
+    </div>
+  `;
+}
+
+// Load activity log from shared activity.json
+async function loadLog() {
+  try {
+    const res  = await fetch('../../activity.json');
+    const data = await res.json();
+    const entries = (data.log || []).filter(e => e.project_id === PROJECT_ID).slice(0, 20);
+
+    const logDiv = document.createElement('div');
+    logDiv.className = 'activity-log';
+    logDiv.id = 'activity-log';
+    logDiv.innerHTML = `
+      <div class="log-header">
+        <span class="log-title">⚙ AI Activity Log</span>
+        <span class="log-badge">Human-Readable</span>
+      </div>
+      ${entries.length === 0
+        ? '<div class="log-empty">No activity yet. Run generate-pages.js to start.</div>'
+        : entries.map(e => `
+          <div class="log-entry">
+            <span class="log-ts">${e.ts_human || e.timestamp}</span>
+            <span class="log-msg">
+              <span class="agent">${esc(e.agent)}</span>
+              → <span class="action">${esc(e.action)}</span>
+              ${e.headline ? `— "${esc(e.headline)}"` : ''}
+              ${e.error ? `<span style="color:#fc8181"> ✗ ${esc(e.error)}</span>` : ''}
+            </span>
+            <span class="log-ver">${e.version ? 'v' + e.version : ''}</span>
+          </div>`).join('')}
+    `;
+    document.body.appendChild(logDiv);
+  } catch(e) {
+    // activity.json not accessible via file:// — skip
+  }
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Boot
+async function boot() {
+  try {
+    const res = await fetch('content.json');
+    if (!res.ok) throw new Error('No content.json — run generate-pages.js first');
+    const content = await res.json();
+    render(content);
+    await loadLog();
+
+    // Footer
+    const footer = document.createElement('footer');
+    footer.innerHTML = `© ${new Date().getFullYear()} Blue Ridge Fence · Content generated by AI v${content.meta?.version || 1} on ${content.meta?.generated_at || 'unknown'} · <a href="#activity-log" style="color:#aaa">View AI Log</a>`;
+    document.body.appendChild(footer);
+  } catch(e) {
+    document.getElementById('app').innerHTML = `
+      <div style="padding:4rem;text-align:center;color:#2980b9">
+        <h2>Content Not Generated Yet</h2>
+        <p style="margin-top:1rem;color:#777">Run <code>node generate-pages.js blue-ridge-fence</code> to generate content.</p>
+        <p style="margin-top:.5rem;color:#999;font-size:.9rem">${e.message}</p>
+      </div>`;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

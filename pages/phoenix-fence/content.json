@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "headline": "Secure Your Property with Phoenix Fence",
+    "subheadline": "Quality Fencing Solutions for Homes and Businesses in Your Area",
+    "cta": "Get Your Free Estimate Today"
+  },
+  "about": {
+    "heading": "Your Trusted Local Fencing Experts",
+    "body": "At Phoenix Fence, we pride ourselves on delivering high-quality fencing solutions tailored to your needs. With years of experience serving our local community, we understand the importance of security, aesthetics, and durability. Whether you're looking to enhance your home or establish a safe perimeter for your business, our team is dedicated to providing exceptional service and craftsmanship."
+  },
+  "services": [
+    {
+      "name": "Wood Fencing",
+      "description": "Add natural beauty and privacy to your property with our durable wood fencing options. Perfect for residential backyards or commercial spaces, our wood fences are crafted to withstand the elements and maintain their charm for years."
+    },
+    {
+      "name": "Vinyl Fencing",
+      "description": "Enjoy the perfect blend of style and low maintenance with our vinyl fencing solutions. Available in various colors and styles, vinyl fences are resistant to fading, cracking, and peeling, making them a smart choice for any property."
+    },
+    {
+      "name": "Chain Link Fencing",
+      "description": "Ideal for security and visibility, our chain link fences provide a cost-effective solution for both residential and commercial applications. These durable fences are perfect for enclosing yards, playgrounds, or industrial sites."
+    },
+    {
+      "name": "Ornamental Iron Fencing",
+      "description": "Elevate your property's curb appeal with our ornamental iron fencing. Combining strength with elegance, these fences provide security without compromising on style, making them perfect for upscale homes and businesses."
+    },
+    {
+      "name": "Fence Repair",
+      "description": "Keep your fence looking and functioning its best with our professional repair services. Whether it's a minor fix or extensive damage, our team is equipped to restore your fence to its original condition quickly and efficiently."
+    }
+  ],
+  "testimonial": {
+    "quote": "Phoenix Fence transformed our yard with a beautiful new wood fence. Their team was professional and the quality of work exceeded our expectations!",
+    "author": "Sarah J., Local Homeowner"
+  },
+  "cta_section": {
+    "heading": "Ready to Transform Your Property?",
+    "body": "Contact us today for a free estimate and discover how Phoenix Fence can enhance the security and beauty of your property. Our team is here to help you choose the perfect fencing solution tailored to your needs.",
+    "button": "Request Your Free Estimate"
+  },
+  "meta": {
+    "generated_by": "gpt-4o-mini",
+    "generated_at": "5/31/2026",
+    "version": 7
+  }
+}

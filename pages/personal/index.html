@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Josh Rarick</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:  #6c3fc5;
+      --dark:   #0d0d0d;
+      --accent: #a855f7;
+      --text:   #e2e8f0;
+      --muted:  #94a3b8;
+      --card:   #1a1a2e;
+      --log-bg: #0a0a0f;
+      --log-text:#a78bfa;
+      --log-dim: #374151;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--dark); color: var(--text); }
+
+    nav { padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f1f1f; }
+    nav .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: -.5px; }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 1.5rem; font-size: .9rem; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+
+    .hero { padding: 6rem 2rem; text-align: center; background: radial-gradient(ellipse at center, #1a0a2e 0%, var(--dark) 70%); }
+    .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: 1.05; margin-bottom: 1rem; }
+    .hero h1 span { color: var(--accent); }
+    .hero p  { color: var(--muted); font-size: 1.15rem; max-width: 550px; margin: 0 auto 2.5rem; line-height: 1.6; }
+    .btn { display: inline-block; background: var(--accent); color: #fff; padding: .85rem 2rem; border-radius: 8px; font-weight: 700; text-decoration: none; transition: background .2s, transform .1s; }
+    .btn:hover { background: var(--brand); transform: translateY(-1px); }
+
+    section { padding: 4rem 2rem; max-width: 960px; margin: 0 auto; }
+    section h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--text); }
+    section p  { color: var(--muted); line-height: 1.7; font-size: 1rem; }
+
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .project-card { background: var(--card); border-radius: 12px; padding: 1.8rem; border: 1px solid #2a2a3e; transition: border-color .2s; }
+    .project-card:hover { border-color: var(--accent); }
+    .project-card h3 { color: var(--accent); font-size: 1.05rem; margin-bottom: .6rem; }
+    .project-card p  { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+    .cta-section { background: linear-gradient(135deg, #1a0a2e, #0d0d0d); border: 1px solid #2a1a4e; border-radius: 16px; padding: 3rem; text-align: center; margin: 2rem; }
+    .cta-section h2 { color: var(--text); margin-bottom: 1rem; }
+    .cta-section p  { color: var(--muted); margin-bottom: 2rem; }
+
+    .activity-log { background: var(--log-bg); color: var(--log-text); font-family: 'Courier New', monospace; padding: 2rem; border-top: 1px solid #1a1a2e; }
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--log-dim); padding-bottom: 1rem; }
+    .log-title  { font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; }
+    .log-badge  { background: #0d0d1a; border: 1px solid var(--log-text); padding: .2rem .7rem; border-radius: 20px; font-size: .75rem; }
+    .log-entry  { border-bottom: 1px solid #111; padding: .8rem 0; display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-ts  { color: var(--log-dim); font-size: .8rem; white-space: nowrap; }
+    .log-msg { font-size: .9rem; color: #c4b5fd; }
+    .log-msg .agent  { color: var(--log-text); font-weight: bold; }
+    .log-msg .action { color: #67e8f9; }
+    .log-ver { color: var(--log-dim); font-size: .8rem; }
+    .log-empty { color: var(--log-dim); font-style: italic; text-align: center; padding: 2rem; }
+
+    .ai-badge { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--log-bg); color: var(--log-text); font-family: monospace; font-size: .75rem; padding: .5rem 1rem; border-radius: 20px; border: 1px solid var(--log-dim); }
+    .ai-badge span { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+    .loading { text-align: center; color: var(--muted); padding: 5rem; }
+    footer { text-align: center; padding: 1.5rem; color: var(--log-dim); font-size: .85rem; border-top: 1px solid #1a1a1a; }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">josh rarick</div>
+  <div>
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+    <a href="#activity-log">AI Log</a>
+  </div>
+</nav>
+
+<div id="app">
+  <div class="loading">Loading...</div>
+</div>
+
+<div class="ai-badge"><span>●</span> AI-Maintained</div>
+
+<script>
+const PROJECT_ID = 'personal';
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function render(c) {
+  document.title = c.hero?.headline || 'Josh Rarick';
+  const heroWords = (c.hero?.headline || 'Josh Rarick').split(' ');
+  const heroHtml  = heroWords.map((w,i) => i === heroWords.length-1 ? `<span>${esc(w)}</span>` : esc(w)).join(' ');
+
+  document.getElementById('app').innerHTML = `
+    <div class="hero">
+      <h1>${heroHtml}</h1>
+      <p>${esc(c.hero?.subheadline || '')}</p>
+      <a class="btn" href="#projects">${esc(c.hero?.cta || 'See My Work')}</a>
+    </div>
+
+    <section id="about">
+      <h2>${esc(c.about?.heading || 'What I Do')}</h2>
+      <p>${esc(c.about?.body || '')}</p>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <div class="projects-grid">
+        ${(c.projects || []).map(p => `
+          <div class="project-card">
+            <h3>${esc(p.name)}</h3>
+            <p>${esc(p.description)}</p>
+          </div>`).join('')}
+      </div>
+    </section>
+
+    <div class="cta-section" id="contact">
+      <h2>${esc(c.cta_section?.heading || '')}</h2>
+      <p>${esc(c.cta_section?.body || '')}</p>
+      <a class="btn" href="mailto:joshua.rarick@icloud.com">${esc(c.cta_section?.button || 'Get in Touch')}</a>
+    </div>
+  `;
+}
+
+async function loadLog() {
+  try {
+    const res  = await fetch('../../activity.json');
+    const data = await res.json();
+    const entries = (data.log || []).slice(0, 30); // Show ALL projects on personal page
+
+    const logDiv = document.createElement('div');
+    logDiv.className = 'activity-log';
+    logDiv.id = 'activity-log';
+    logDiv.innerHTML = `
+      <div class="log-header">
+        <span class="log-title">⚙ AI Army Activity Log</span>
+        <span class="log-badge">Human-Readable</span>
+      </div>
+      ${entries.length === 0
+        ? '<div class="log-empty">No activity yet. Run generate-pages.js to start the agents.</div>'
+        : entries.map(e => `
+          <div class="log-entry">
+            <span class="log-ts">${e.ts_human || e.timestamp}</span>
+            <span class="log-msg">
+              <span class="agent">${esc(e.agent)}</span>
+              → <span class="action">${esc(e.action)}</span>
+              on <strong style="color:#e2e8f0">${esc(e.project_name)}</strong>
+              ${e.headline ? `— "${esc(e.headline)}"` : ''}
+              ${e.error ? `<span style="color:#f87171"> ✗ ${esc(e.error)}</span>` : ''}
+            </span>
+            <span class="log-ver">${e.version ? 'v' + e.version : ''}</span>
+          </div>`).join('')}
+    `;
+    document.body.appendChild(logDiv);
+  } catch(e) {}
+}
+
+async function boot() {
+  try {
+    const res = await fetch('content.json');
+    if (!res.ok) throw new Error('Run generate-pages.js first');
+    const content = await res.json();
+    render(content);
+    await loadLog();
+    const footer = document.createElement('footer');
+    footer.innerHTML = `Content generated by AI v${content.meta?.version||1} on ${content.meta?.generated_at||'unknown'} · <a href="#activity-log">View Full AI Log</a>`;
+    document.body.appendChild(footer);
+  } catch(e) {
+    document.getElementById('app').innerHTML = `
+      <div style="padding:5rem;text-align:center;color:#a78bfa">
+        <h2>Content Not Generated Yet</h2>
+        <p style="margin-top:1rem;color:#64748b">Run <code style="color:#a78bfa">node generate-pages.js</code> to start the AI agents.</p>
+      </div>`;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

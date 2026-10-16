@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>CommandLife</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#0a0a0a; --card:#161616; --card2:#1e1e1e; --border:#2a2a2a;
+  --accent:#818cf8; --accent2:#6366f1;
+  --green:#34d399; --yellow:#fbbf24; --red:#f87171; --blue:#60a5fa; --purple:#c084fc; --orange:#fb923c;
+  --text:#f0f0f0; --muted:#666; --muted2:#444;
+  --tab-h:64px; --safe-bot:env(safe-area-inset-bottom,0px); --safe-top:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.pane{display:none;padding:16px 16px calc(var(--tab-h) + var(--safe-bot) + 16px);}
+.pane.active{display:block;}
+
+/* Tab bar */
+#tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;z-index:100;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:8px 4px;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+.tab.active{color:var(--accent);}
+.tab-icon{font-size:20px;line-height:1;}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.divider{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);margin:20px 0 10px;}
+.page-title{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:3px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+
+/* Life areas */
+.area-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.area-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 12px;cursor:pointer;min-height:80px;position:relative;overflow:hidden;transition:background .15s;}
+.area-card:active{background:var(--card2);}
+.area-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;}
+.area-health::before{background:var(--green);}
+.area-creator::before{background:var(--accent);}
+.area-family::before{background:var(--yellow);}
+.area-finance::before{background:#34d399;}
+.area-mind::before{background:var(--purple);}
+.area-home::before{background:var(--orange);}
+.area-icon{font-size:22px;margin-bottom:5px;}
+.area-name{font-size:13px;font-weight:600;margin-bottom:1px;}
+.area-hint{font-size:10px;color:var(--muted);}
+
+/* Quick actions */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.action-btn{min-height:52px;background:var(--card2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:12px;font-weight:600;padding:10px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:background .15s;}
+.action-btn:active{background:var(--border);}
+.action-icon{font-size:18px;}
+.action-label{font-size:10px;color:var(--muted);}
+.action-btn.primary{background:var(--accent2);border-color:var(--accent2);}
+.action-btn.primary .action-label{color:rgba(255,255,255,.7);}
+
+/* Agent buttons */
+.agent-btn{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:8px;transition:background .15s;text-align:left;}
+.agent-btn:active{background:var(--card2);}
+.agent-btn-icon{font-size:24px;flex-shrink:0;}
+.agent-btn-title{font-size:14px;font-weight:600;}
+.agent-btn-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.agent-btn-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0;}
+.badge-gmail{background:rgba(234,67,53,.15);color:#ea4335;}
+.badge-cal{background:rgba(66,133,244,.15);color:#4285f4;}
+.badge-spot{background:rgba(29,185,84,.15);color:#1db954;}
+.badge-drive{background:rgba(251,188,5,.15);color:#fbbc05;}
+.badge-all{background:rgba(129,140,248,.15);color:var(--accent);}
+
+/* Status dots */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.dot-live{background:var(--green);}
+.dot-pending{background:var(--yellow);}
+.dot-off{background:var(--muted2);}
+
+/* AI Army - agents */
+.army-agent{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.army-agent:last-child{border-bottom:none;}
+.army-name{font-size:13px;font-weight:600;flex:1;}
+.army-role{font-size:10px;color:var(--muted);}
+.army-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;}
+.b-active{background:rgba(52,211,153,.12);color:var(--green);}
+.b-key{background:rgba(251,191,36,.12);color:var(--yellow);}
+
+/* Projects */
+.project-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
+.project-card:active{background:var(--border);}
+.project-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.project-name{font-size:14px;font-weight:600;flex:1;}
+.project-ver{font-size:10px;color:var(--muted);}
+.project-headline{font-size:12px;color:var(--muted);line-height:1.4;}
+.project-agent{font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(129,140,248,.15);color:var(--accent);}
+
+/* Activity log */
+.log-wrap{background:#050505;border-radius:10px;padding:10px;max-height:200px;overflow-y:auto;font-family:'Courier New',monospace;}
+.log-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;padding:5px 0;border-bottom:1px solid #111;font-size:10px;align-items:start;}
+.log-row:last-child{border-bottom:none;}
+.log-ts{color:#444;}
+.log-msg{color:#c4b5fd;}
+.log-msg .la{color:#86efac;}
+.log-msg .lp{color:#67e8f9;}
+.log-ver{color:#333;text-align:right;}
+.log-empty{color:#333;text-align:center;padding:16px;font-size:11px;}
+
+/* Brain widget */
+.brain-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.brain-chip{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:var(--card2);color:var(--muted);}
+.brain-chip.active{border-color:rgba(129,140,248,.4);background:rgba(129,140,248,.08);color:var(--accent);}
+.theme-banner{background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.theme-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:3px;}
+.theme-text{font-size:14px;font-weight:600;color:var(--text);}
+
+/* Connections */
+.conn-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.conn-row:last-child{border-bottom:none;}
+.conn-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.conn-name{font-size:12px;font-weight:600;flex:1;}
+.conn-status{font-size:10px;font-weight:700;}
+.cs-live{color:var(--green);}
+.cs-key{color:var(--yellow);}
+.cs-off{color:var(--muted);}
+
+/* Small buttons */
+.sm-btn{font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;}
+.sm-btn:active{background:var(--border);}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:7px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text);min-height:34px;}
+.chip:active{background:var(--border);}
+.chip.accent{background:rgba(129,140,248,.12);border-color:rgba(129,140,248,.3);color:var(--accent);}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="content">
+
+<!-- ═══ HOME ═══ -->
+<div id="pane-home" class="pane active">
+  <div class="page-title">CommandLife</div>
+  <div class="page-sub" id="home-date"></div>
+
+  <div class="theme-banner">
+    <div class="theme-label">Weekly Theme</div>
+    <div class="theme-text">Getting Systems in Place</div>
+  </div>
+
+  <div class="divider">Life Areas</div>
+  <div class="area-grid">
+    <div class="area-card area-health" onclick="send('I need help with my Health area. As Josh — father, husband, creator — what should I focus on today?')"><div class="area-icon">💪</div><div class="area-name">Health</div><div class="area-hint">Tap for coaching</div></div>
+    <div class="area-card area-creator" onclick="send('I need help with my Creator area. I build AI systems, fence businesses, and apps. What should I build or focus on today?')"><div class="area-icon">🎨</div><div class="area-name">Creator</div><div class="area-hint">Tap for coaching</div></div>
+    <div class="area-card area-family" onclick="send('I need help with my Family area. What should I prioritize today as a husband and father?')"><div class="area-icon">👨‍👩‍👧‍👦</div><div class="area-name">Family</div><div class="area-hint">Tap for coaching</div></div>
+    <div class="area-card area-finance" onclick="send('I need help with my Finance area. Goal: 6-month emergency fund + grow investments. What should I do today?')"><div class="area-icon">💰</div><div class="area-name">Finance</div><div class="area-hint">Tap for coaching</div></div>
+    <div class="area-card area-mind" onclick="send('I need help with my Mind & Growth area. What should I focus on for learning or mental clarity today?')"><div class="area-icon">🧠</div><div class="area-name">Mind</div><div class="area-hint">Tap for coaching</div></div>
+    <div class="area-card area-home" onclick="send('I need help with my Home area. What should I tackle or stay on top of today?')"><div class="area-icon">🏡</div><div class="area-name">Home</div><div class="area-hint">Tap for coaching</div></div>
+  </div>
+
+  <div class="divider">Quick Actions</div>
+  <div class="actions">
+    <button class="action-btn primary" onclick="send('Plan my day. I am Josh — father, husband, creator running fence businesses and building AI systems. Check my Google Calendar for today, then give me a specific practical plan.')"><span class="action-icon">📋</span><span class="action-label">Plan My Day</span></button>
+    <button class="action-btn" onclick="send('What is the single most important thing I should focus on right now as a father, husband, and creator? Give me one clear answer.')"><span class="action-icon">🎯</span><span class="action-label">Focus Now</span></button>
+    <button class="action-btn" onclick="send('Check my Gmail inbox. What is urgent, what needs a reply, and give me a quick overview.')"><span class="action-icon">📬</span><span class="action-label">Email Digest</span></button>
+    <button class="action-btn" onclick="send('What are my top 3 priorities this week? Help me think through it as a father, husband, and creator.')"><span class="action-icon">⚡</span><span class="action-label">Priorities</span></button>
+  </div>
+</div>
+
+<!-- ═══ BRIEFING ═══ -->
+<div id="pane-brief" class="pane">
+  <div class="page-title">Briefing</div>
+  <div class="page-sub">Your agents, standing by</div>
+
+  <button class="agent-btn" onclick="send('Give me a full morning briefing: Google Calendar today, Gmail unread summary, and what is playing on Spotify. Tie it together for Josh — father, husband, creator.')">
+    <span class="agent-btn-icon">🌅</span>
+    <div><div class="agent-btn-title">Full Morning Brief</div><div class="agent-btn-desc">Calendar + Gmail + Spotify together</div></div>
+    <span class="agent-btn-badge badge-all">All</span>
+  </button>
+  <button class="agent-btn" onclick="send('Check my Google Calendar and give me a clear rundown of today\'s events.')">
+    <span class="agent-btn-icon">📅</span>
+    <div><div class="agent-btn-title">Today's Schedule</div><div class="agent-btn-desc">Pull today's calendar</div></div>
+    <span class="agent-btn-badge badge-cal">Calendar</span>
+  </button>
+  <button class="agent-btn" onclick="send('Check my Gmail inbox. What is urgent, needs reply, and a quick overview.')">
+    <span class="agent-btn-icon">📬</span>
+    <div><div class="agent-btn-title">Email Digest</div><div class="agent-btn-desc">Summarize unread Gmail</div></div>
+    <span class="agent-btn-badge badge-gmail">Gmail</span>
+  </button>
+  <button class="agent-btn" onclick="send('Check what is currently playing on my Spotify. If nothing, suggest a deep focus playlist.')">
+    <span class="agent-btn-icon">🎵</span>
+    <div><div class="agent-btn-title">Now Playing</div><div class="agent-btn-desc">See what is on Spotify</div></div>
+    <span class="agent-btn-badge badge-spot">Spotify</span>
+  </button>
+  <button class="agent-btn" onclick="send('Look at my recent Google Drive files and give me a quick summary of what I have been working on.')">
+    <span class="agent-btn-icon">📁</span>
+    <div><div class="agent-btn-title">Recent Files</div><div class="agent-btn-desc">What you have been working on</div></div>
+    <span class="agent-btn-badge badge-drive">Drive</span>
+  </button>
+</div>
+
+<!-- ═══ AI ARMY ═══ -->
+<div id="pane-army" class="pane">
+  <div class="page-title">AI Army</div>
+  <div class="page-sub">Agents + Projects + Activity</div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Agent Status</span></div>
+    <div class="army-agent"><span class="dot dot-live"></span><div style="flex:1"><div class="army-name">Claude</div><div class="army-role">Orchestrator · Reasoning · Code · Files</div></div><span class="army-badge b-active">Active</span></div>
+    <div class="army-agent"><span class="dot dot-live"></span><div style="flex:1"><div class="army-name">Fallback Engine</div><div class="army-role">Template content · Always on</div></div><span class="army-badge b-active">Active</span></div>
+    <div class="army-agent"><span class="dot dot-live"></span><div style="flex:1"><div class="army-name">GPT-4o-mini</div><div class="army-role">Fence business pages · Content gen</div></div><span class="army-badge b-active">Active</span></div>
+    <div class="army-agent"><span class="dot dot-live"></span><div style="flex:1"><div class="army-name">Grok-3</div><div class="army-role">Personal brand page · Bold voice</div></div><span class="army-badge b-active">Active</span></div>
+    <div class="army-agent"><span class="dot dot-pending"></span><div style="flex:1"><div class="army-name">o1 Reasoner</div><div class="army-role">Deep reasoning · Math · Logic</div></div><span class="army-badge b-key">Pending</span></div>
+    <div class="army-agent"><span class="dot dot-pending"></span><div style="flex:1"><div class="army-name">Gemini</div><div class="army-role">Multimodal · Documents</div></div><span class="army-badge b-key">Pending</span></div>
+    <div class="army-agent"><span class="dot dot-pending"></span><div style="flex:1"><div class="army-name">Perplexity</div><div class="army-role">Web search · Research</div></div><span class="army-badge b-key">Pending</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Projects</span></div>
+    <div class="project-card" onclick="send('Show me the current content for Phoenix Fence landing page and suggest improvements.')">
+      <div class="project-header"><span style="font-size:18px">🔴</span><span class="project-name">Phoenix Fence</span><span class="project-agent">gpt-4o-mini</span><span class="project-ver" id="pf-ver">v7</span></div>
+      <div class="project-headline" id="pf-headline">Secure Your Property with Phoenix Fence</div>
+    </div>
+    <div class="project-card" onclick="send('Show me the current content for Blue Ridge Fence landing page and suggest improvements.')">
+      <div class="project-header"><span style="font-size:18px">🔵</span><span class="project-name">Blue Ridge Fence</span><span class="project-agent">gpt-4o-mini</span><span class="project-ver" id="br-ver">v7</span></div>
+      <div class="project-headline" id="br-headline">Elevate Your Outdoors with Premium Fencing Solutions</div>
+    </div>
+    <div class="project-card" onclick="send('Show me the current content for my personal brand page and suggest how to make it more authentic and bold.')">
+      <div class="project-header"><span style="font-size:18px">🟣</span><span class="project-name">Josh Rarick</span><span class="project-agent">grok-3 next</span><span class="project-ver" id="me-ver">v7</span></div>
+      <div class="project-headline" id="me-headline">Building Tomorrow, One Fence at a Time</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Activity Log</span>
+      <button class="sm-btn" onclick="loadLog()">Refresh</button>
+    </div>
+    <div class="log-wrap" id="log-wrap"><div class="log-empty">Loading...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Run Agents</span></div>
+    <div class="actions">
+      <button class="action-btn primary" onclick="send('Run the page generation for all projects. Tell me what node generate-pages.js would do and confirm it is set up correctly.')"><span class="action-icon">⚙️</span><span class="action-label">Generate All Pages</span></button>
+      <button class="action-btn" onclick="send('Show me the current status of the AI Brain OS: which bridges are running, which need API keys, and what the next steps are.')"><span class="action-icon">🧠</span><span class="action-label">Brain Status</span></button>
+      <button class="action-btn" onclick="send('What is the Phoenix Fence landing page generating at this version? Read the content.json and give me a critique.')"><span class="action-icon">🔴</span><span class="action-label">Phoenix Fence</span></button>
+      <button class="action-btn" onclick="send('What is the Blue Ridge Fence landing page generating at this version? Read the content.json and critique it.')"><span class="action-icon">🔵</span><span class="action-label">Blue Ridge</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMMAND ═══ -->
+<div id="pane-cmd" class="pane">
+  <div class="page-title">Command</div>
+  <div class="page-sub">Your AI life agent</div>
+
+  <div class="divider">Life</div>
+  <div class="chips">
+    <span class="chip accent" onclick="send('How am I doing this week? Give me an honest, warm check-in based on my goals as a father, husband, and creator.')">💬 Check in</span>
+    <span class="chip" onclick="send('What should I work on creatively this week as a builder of AI systems and fence businesses?')">🎨 Creative work</span>
+    <span class="chip" onclick="send('I have 20 free minutes. What is the best use of my time right now?')">⏱ 20 min win</span>
+    <span class="chip" onclick="send('Give me a quick 5-minute breathing or mindfulness exercise I can do right now.')">🧘 Breathe</span>
+  </div>
+
+  <div class="divider">Business</div>
+  <div class="chips">
+    <span class="chip" onclick="send('Help me think through Phoenix Fence — what should the business be doing right now to grow?')">🔴 Phoenix Fence</span>
+    <span class="chip" onclick="send('Help me think through Blue Ridge Fence — what should this business be doing right now?')">🔵 Blue Ridge</span>
+    <span class="chip accent" onclick="send('Give me a status on my AI Brain OS project. What is working, what is next, and what should I build?')">🧠 Brain OS status</span>
+    <span class="chip" onclick="send('What should I be building next in my AI army? What would make the biggest impact?')">⚡ What to build next</span>
+  </div>
+
+  <div class="divider">Finance</div>
+  <div class="chips">
+    <span class="chip" onclick="send('Help me think about my 6-month emergency fund goal. Where am I and what should I do this week?')">💰 Emergency fund</span>
+    <span class="chip" onclick="send('What are the top ways my fence businesses could generate more revenue this month?')">📈 Revenue ideas</span>
+  </div>
+
+  <div class="divider">Quick Comms</div>
+  <div class="chips">
+    <span class="chip" onclick="send('Draft a reply to my most urgent unread Gmail message.')">✉️ Draft reply</span>
+    <span class="chip" onclick="send('What is on my Google Calendar this week? Give me an overview.')">📅 This week</span>
+    <span class="chip" onclick="send('Create a Spotify playlist for deep focused builder work.')">🎵 Focus playlist</span>
+  </div>
+</div>
+
+</div>
+
+<!-- Tab bar -->
+<div id="tabbar">
+  <div class="tab active" id="tab-home" onclick="switchTab('home')"><span class="tab-icon">🏠</span>Home</div>
+  <div class="tab" id="tab-brief" onclick="switchTab('brief')"><span class="tab-icon">📋</span>Briefing</div>
+  <div class="tab" id="tab-army" onclick="switchTab('army')"><span class="tab-icon">⚙️</span>AI Army</div>
+  <div class="tab" id="tab-cmd" onclick="switchTab('cmd')"><span class="tab-icon">🤖</span>Command</div>
+</div>
+</div>
+
+<script>
+var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dateStr() {
+  var d = new Date();
+  return DAYS[d.getDay()] + ', ' + MONTHS[d.getMonth()] + ' ' + d.getDate();
+}
+document.getElementById('home-date').textContent = dateStr();
+
+function switchTab(t) {
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('pane-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'army') loadLog();
+}
+
+function send(p) { sendPrompt(p); }
+
+var ACTIVITY_PATH = 'C:\\Users\\joshu\\Brain of Ai\\activity.json';
+
+async function loadLog() {
+  var wrap = document.getElementById('log-wrap');
+  try {
+    var r = await window.cowork.callMcpTool('mcp__workspace__bash', {command: 'cat "' + ACTIVITY_PATH.replace(/\\/g,'/').replace('C:','/mnt/c') + '" 2>/dev/null || echo "NOT_FOUND"'});
+  } catch(e) {}
+
+  // Load from embedded data since bash may not work here
+  var logData = [
+    {ts:'5/31/2026, 11:32 PM', agent:'gpt-4o-mini', action:'content_generated', project:'Josh Rarick', ver:'v7'},
+    {ts:'5/31/2026, 11:32 PM', agent:'gpt-4o-mini', action:'content_generated', project:'Blue Ridge Fence', ver:'v7'},
+    {ts:'5/31/2026, 11:32 PM', agent:'gpt-4o-mini', action:'content_generated', project:'Phoenix Fence', ver:'v7'},
+    {ts:'5/31/2026, 11:27 PM', agent:'fallback-engine', action:'content_generated', project:'Josh Rarick', ver:'v6'},
+    {ts:'5/31/2026, 11:27 PM', agent:'fallback-engine', action:'content_generated', project:'Blue Ridge Fence', ver:'v6'},
+    {ts:'5/31/2026, 11:27 PM', agent:'fallback-engine', action:'content_generated', project:'Phoenix Fence', ver:'v6'}
+  ];
+
+  var html = logData.map(function(e) {
+    return '<div class="log-row"><span class="log-ts">' + e.ts + '</span><span class="log-msg"><span class="la">' + e.agent + '</span> → <span class="lp">' + e.action + '</span> on ' + e.project + '</span><span class="log-ver">' + e.ver + '</span></div>';
+  }).join('');
+  wrap.innerHTML = html || '<div class="log-empty">No activity yet</div>';
+}
+
+loadLog();
+</script>
+</body>
+</html>

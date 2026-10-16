@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "headline": "Building Tomorrow, One Fence at a Time",
+    "subheadline": "I'm Josh Rarick — a father, husband, and passionate builder of AI systems that empower my businesses and my life.",
+    "cta": "Let's Connect"
+  },
+  "about": {
+    "heading": "Who I Am",
+    "body": "I’m not just a builder of fences; I’m a builder of futures. As a devoted father and husband, I strive to create a life where technology and family thrive together. I leverage AI to streamline processes and elevate my businesses, ensuring that every project is a step towards innovation and efficiency. My journey is driven by a desire to create more than just structures — I build solutions that make life easier and more enjoyable."
+  },
+  "projects": [
+    {
+      "name": "AI-Powered Fence Solutions",
+      "description": "Integrating artificial intelligence into my fence businesses to optimize design, installation, and customer service, ensuring every client receives a personalized experience."
+    },
+    {
+      "name": "Automation Tools for Everyday Life",
+      "description": "Developing automation tools that help busy families manage their time better, allowing for more moments spent together and less time on mundane tasks."
+    }
+  ],
+  "cta_section": {
+    "heading": "Join Me on This Journey",
+    "body": "Whether you’re looking to innovate your business, explore AI, or just want to chat about building a better future for our families, I’d love to hear from you. Let’s build something great together.",
+    "button": "Get in Touch"
+  },
+  "meta": {
+    "generated_by": "gpt-4o-mini",
+    "generated_at": "5/31/2026",
+    "version": 7
+  }
+}

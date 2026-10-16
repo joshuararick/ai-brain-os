@@ -25,3 +25,7 @@ __pycache__/
 
 # Logs
 *.log
+
+# Runtime logs / agent memory
+activity.json
+.agent_memory.jsonl

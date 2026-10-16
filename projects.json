@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "projects": [
+    {
+      "id": "phoenix-fence",
+      "name": "Phoenix Fence",
+      "type": "business",
+      "description": "Residential and commercial fencing company",
+      "location": "Local service area",
+      "services": ["wood fencing", "vinyl fencing", "chain link", "ornamental iron", "fence repair"],
+      "tone": "professional, trustworthy, local",
+      "outputDir": "pages/phoenix-fence",
+      "agent": "openai",
+      "status": "active"
+    },
+    {
+      "id": "blue-ridge-fence",
+      "name": "Blue Ridge Fence",
+      "type": "business",
+      "description": "Premium fencing solutions for mountain region clients",
+      "location": "Blue Ridge area",
+      "services": ["wood fencing", "split rail", "privacy fencing", "gate installation", "fence repair"],
+      "tone": "premium, reliable, regional",
+      "outputDir": "pages/blue-ridge-fence",
+      "agent": "openai",
+      "status": "active"
+    },
+    {
+      "id": "personal",
+      "name": "Josh Rarick — Creator",
+      "type": "personal",
+      "description": "Builder of AI systems, tools, and creative projects",
+      "tagline": "Father. Husband. Builder.",
+      "services": ["AI automation", "web apps", "systems design"],
+      "tone": "authentic, builder, direct",
+      "outputDir": "pages/personal",
+      "agent": "grok",
+      "status": "active"
+    }
+  ]
+}

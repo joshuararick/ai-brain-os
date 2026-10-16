@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "headline": "Elevate Your Outdoors with Premium Fencing Solutions",
+    "subheadline": "Crafted for the Blue Ridge Mountains, Designed for You",
+    "cta": "Get Your Free Estimate Today"
+  },
+  "about": {
+    "heading": "About Blue Ridge Fence",
+    "body": "At Blue Ridge Fence, we understand the unique beauty and challenges of the mountain region. Our premium fencing solutions are designed not only to enhance your property's aesthetics but also to provide unmatched durability and security. With years of experience and a commitment to quality craftsmanship, we proudly serve the Blue Ridge area, ensuring every fence we install stands the test of time."
+  },
+  "services": [
+    {
+      "name": "Wood Fencing",
+      "description": "Embrace the rustic charm of our custom wood fencing, perfect for blending seamlessly with the natural beauty of the Blue Ridge environment. Each fence is built with high-quality materials for longevity and style."
+    },
+    {
+      "name": "Split Rail Fencing",
+      "description": "Ideal for open landscapes, our split rail fencing offers an elegant yet functional boundary that complements any property. Enjoy the perfect balance of tradition and simplicity."
+    },
+    {
+      "name": "Privacy Fencing",
+      "description": "Create your personal sanctuary with our privacy fencing solutions. Designed to provide security and seclusion, our fences are crafted to enhance your outdoor living experience."
+    },
+    {
+      "name": "Gate Installation",
+      "description": "Enhance your property’s access and security with our custom gate installation services. Designed to match your fence style, our gates provide both function and flair."
+    },
+    {
+      "name": "Fence Repair",
+      "description": "Maintain the beauty and integrity of your existing fence with our reliable repair services. Whether it’s a minor fix or major restoration, we bring your fence back to its prime."
+    }
+  ],
+  "testimonial": {
+    "quote": "Blue Ridge Fence transformed our property! Their attention to detail and quality craftsmanship are unmatched.",
+    "author": "Sarah J., Blue Ridge Resident"
+  },
+  "cta_section": {
+    "heading": "Ready to Transform Your Property?",
+    "body": "Contact us today for a free consultation and let our experts help you choose the perfect fencing solution tailored to your needs. Experience the premium quality and service that sets Blue Ridge Fence apart.",
+    "button": "Contact Us Now"
+  },
+  "meta": {
+    "generated_by": "gpt-4o-mini",
+    "generated_at": "5/31/2026",
+    "version": 7
+  }
+}

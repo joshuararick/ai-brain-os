@@ -3,6 +3,8 @@
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+// Load ../.env (git-ignored) so API keys never live in source
+try { fs.readFileSync(require("path").join(__dirname, "..", ".env"), "utf8").split(/\r?\n/).forEach(function (l) { var m = l.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/); if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim(); }); } catch (e) {}
 const path = require('path');
 
 const PORT = 3337;
