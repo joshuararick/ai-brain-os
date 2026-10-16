@@ -20,15 +20,17 @@ const BASE = __dirname;
 const PROJECTS_FILE = path.join(BASE, 'projects.json');
 const ACTIVITY_FILE = path.join(BASE, 'activity.json');
 
-// ── Load .env manually (no dotenv dependency) ─────────────────────────────
+// ── Load .env, then the master key file (no dotenv dependency) ────────────
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
-  if (!fs.existsSync(envPath)) return {};
   const env = {};
-  fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
-    const m = line.match(/^([A-Z_]+)=(.+)$/);
-    if (m) env[m[1]] = m[2].trim();
-  });
+  const files = [path.join(__dirname, '.env'), path.join(require('os').homedir(), '.secrets', 'api-keys.env')];
+  for (const envPath of files) {
+    if (!fs.existsSync(envPath)) continue;
+    fs.readFileSync(envPath, 'utf8').split(/\r?\n/).forEach(line => {
+      const m = line.match(/^([A-Z0-9_]+)=(.+)$/);
+      if (m && !(m[1] in env)) env[m[1]] = m[2].trim();
+    });
+  }
   return env;
 }
 

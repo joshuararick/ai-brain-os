@@ -3,8 +3,10 @@
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
-// Load ../.env (git-ignored) so API keys never live in source
-try { fs.readFileSync(require("path").join(__dirname, "..", ".env"), "utf8").split(/\r?\n/).forEach(function (l) { var m = l.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/); if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim(); }); } catch (e) {}
+// Load keys from ../.env, then the master key file (~/.secrets/api-keys.env); never from source
+[require("path").join(__dirname, "..", ".env"), require("path").join(require("os").homedir(), ".secrets", "api-keys.env")].forEach(function (f) {
+  try { fs.readFileSync(f, "utf8").split(/\r?\n/).forEach(function (l) { var m = l.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/); if (m && m[2].trim() && !process.env[m[1]]) process.env[m[1]] = m[2].trim(); }); } catch (e) {}
+});
 
 const PORT = 3340;
 const API_KEY = process.env.GROK_API_KEY || '';
