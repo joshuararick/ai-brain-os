@@ -20,8 +20,13 @@ function logActivity(agent, action, detail) {
   try { fs.writeFileSync(ACTIVITY_LOG, JSON.stringify(log, null, 2)); } catch(e) {}
 }
 
-function geminiRequest(model, prompt, cb) {
-  var data = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 2000 } });
+// Models are tried in order; Google retires model IDs often and the free tier has no Pro quota
+var DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+var FALLBACK_MODELS = [DEFAULT_MODEL, 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'];
+var RETRYABLE = [404, 429, 500, 503];
+
+function geminiRequest(model, prompt, maxTokens, cb) {
+  var data = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: maxTokens } });
   var options = {
     hostname: 'generativelanguage.googleapis.com',
     port: 443,
@@ -35,18 +40,36 @@ function geminiRequest(model, prompt, cb) {
     res.on('end', function() {
       try {
         var parsed = JSON.parse(responseData);
-        if (parsed.error) cb(parsed.error.message, null);
-        else cb(null, parsed);
-      } catch(e) { cb('Parse error: ' + responseData.slice(0, 200), null); }
+        if (parsed.error) { cb({ status: res.statusCode, message: parsed.error.message }, null); return; }
+        var parts = (((parsed.candidates || [])[0] || {}).content || {}).parts || [];
+        var text = parts.filter(function(p) { return p.text && !p.thought; }).map(function(p) { return p.text; }).join('');
+        if (!text) cb({ status: 0, message: 'Empty response (finishReason: ' + (((parsed.candidates || [])[0] || {}).finishReason || 'unknown') + ')' }, null);
+        else cb(null, text);
+      } catch(e) { cb({ status: res.statusCode, message: 'Parse error: ' + responseData.slice(0, 200) }, null); }
     });
   });
-  req.on('error', function(e) { cb(e.message, null); });
+  req.on('error', function(e) { cb({ status: 0, message: e.message }, null); });
   req.write(data);
   req.end();
 }
 
+// Try the requested model, then the fallbacks, skipping retired/over-quota/overloaded models
+function geminiWithFallback(firstModel, prompt, maxTokens, cb) {
+  var models = [firstModel].concat(FALLBACK_MODELS.filter(function(m) { return m !== firstModel; }));
+  var errors = [];
+  (function next(i) {
+    if (i >= models.length) { cb(errors.join(' | '), null, null); return; }
+    geminiRequest(models[i], prompt, maxTokens, function(err, text) {
+      if (!err) { cb(null, text, models[i]); return; }
+      errors.push(models[i] + ': ' + err.message.slice(0, 120));
+      if (RETRYABLE.indexOf(err.status) === -1) { cb(errors.join(' | '), null, null); return; }
+      next(i + 1);
+    });
+  })(0);
+}
+
 var TOOLS = [
-  { name: 'gemini_chat', description: 'Chat with Google Gemini 2.0 Flash. Great for analysis, long documents, multimodal tasks, and as a third AI perspective.', inputSchema: { type: 'object', properties: { message: { type: 'string' }, model: { type: 'string', description: 'gemini-2.0-flash (default), gemini-1.5-pro' } }, required: ['message'] } },
+  { name: 'gemini_chat', description: 'Chat with Google Gemini Flash. Great for analysis, long documents, multimodal tasks, and as a third AI perspective.', inputSchema: { type: 'object', properties: { message: { type: 'string' }, model: { type: 'string', description: DEFAULT_MODEL + ' (default), gemini-flash-latest, gemini-3.8-flash. Falls back automatically if a model is unavailable.' } }, required: ['message'] } },
   { name: 'gemini_think', description: 'Use Gemini with extended thinking for complex reasoning tasks.', inputSchema: { type: 'object', properties: { problem: { type: 'string' } }, required: ['problem'] } },
   { name: 'check_status', description: 'Check if Gemini API key is configured.', inputSchema: { type: 'object', properties: {}, required: [] } }
 ];
@@ -54,28 +77,27 @@ var TOOLS = [
 function runTool(name, args, cb) {
   args = args || {};
   if (name === 'check_status') {
-    cb(API_KEY ? 'Gemini key configured. Gemini 2.0 Flash ready.' : 'No GEMINI_API_KEY set.');
+    cb(API_KEY ? 'Gemini key configured. Default model: ' + DEFAULT_MODEL + '.' : 'No GEMINI_API_KEY set.');
     return;
   }
   if (!API_KEY) { cb('No GEMINI_API_KEY configured.'); return; }
   if (name === 'gemini_chat') {
-    var model = args.model || 'gemini-2.0-flash';
+    var model = args.model || DEFAULT_MODEL;
     logActivity('Claude', 'routing to Gemini ' + model, args.message.slice(0, 80));
-    geminiRequest(model, args.message, function(err, res) {
+    geminiWithFallback(model, args.message, 4000, function(err, reply, usedModel) {
       if (err) { cb('Error: ' + err); return; }
-      var reply = res.candidates[0].content.parts[0].text;
       logActivity('Gemini', 'responded', reply.slice(0, 80));
-      cb('[Gemini ' + model + ']\n\n' + reply);
+      cb('[Gemini ' + usedModel + ']\n\n' + reply);
     });
     return;
   }
   if (name === 'gemini_think') {
     logActivity('Claude', 'Gemini deep think', args.problem.slice(0, 80));
-    geminiRequest('gemini-2.0-flash-thinking-exp', args.problem, function(err, res) {
+    // Current Flash models reason internally; give them room for thinking plus the answer
+    geminiWithFallback(DEFAULT_MODEL, args.problem, 16000, function(err, reply, usedModel) {
       if (err) { cb('Error: ' + err); return; }
-      var reply = res.candidates[0].content.parts[0].text;
       logActivity('Gemini Think', 'complete', reply.slice(0, 80));
-      cb('[Gemini Thinking]\n\n' + reply);
+      cb('[Gemini Thinking: ' + usedModel + ']\n\n' + reply);
     });
     return;
   }
